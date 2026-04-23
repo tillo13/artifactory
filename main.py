@@ -94,6 +94,10 @@ def create_app():
                                soft_cap=WARN_USERS,
                                hard_cap=MAX_USERS)
 
+    @app.route('/about')
+    def about_page():
+        return render_template('about.html', current_user=current_user())
+
     @app.route('/schema')
     def schema_page():
         user = current_user()

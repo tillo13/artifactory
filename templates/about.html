@@ -1,0 +1,171 @@
+{% extends "_base.html" %}
+
+{% block title %}About — Artifactory{% endblock %}
+
+{% block content %}
+
+<section class="mb-10">
+  <h1 class="text-4xl font-bold text-slate-900 mb-3">About Artifactory</h1>
+  <p class="text-lg text-slate-600 max-w-3xl">
+    A tiny public experiment in what happens if you <em>publish a schema</em>,
+    let users design their own React views in Claude against it, and host
+    their submissions multi-tenant — all over the same shared data.
+  </p>
+</section>
+
+<!-- ========== THE PITCH ========== -->
+<section class="mb-10 bg-white border border-slate-200 rounded-xl p-6">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">One backend. Many AI-designed frontends.</h2>
+  <p class="text-slate-700 mb-3">
+    Classic enterprise pattern: one team owns a canonical data model
+    (ServiceNow CMDB, Salesforce objects, a house-build task list) and many
+    other teams want their own custom views. Traditionally that means a
+    frontend team per view, or a rigid low-code tool where everyone clicks
+    together the same component library.
+  </p>
+  <p class="text-slate-700">
+    Artifactory tries a third path: <b>publish the schema as a contract,
+    let each person vibe-code their own frontend in Claude against it,
+    and rehost the submissions on your domain where they can actually
+    talk to your API.</b>
+  </p>
+</section>
+
+<!-- ========== THE PROBLEM ========== -->
+<section class="mb-10">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">Why this demo exists</h2>
+  <p class="text-slate-700 mb-3">
+    Claude Artifacts are a fantastic design surface — you can vibe-code a
+    working React app in minutes. But the artifact sandbox is airtight:
+  </p>
+  <ul class="list-disc list-inside text-slate-700 space-y-1 mb-3 ml-2">
+    <li>The CSP locks <code class="bg-slate-100 px-1 rounded text-sm">connect-src</code> to a small CDN allowlist — <b>your artifact can't reach your own backend</b>.</li>
+    <li><code class="bg-slate-100 px-1 rounded text-sm">window.storage</code> caps at 20&nbsp;MB per artifact, is Anthropic-hosted, and resets per-artifact-version.</li>
+    <li>Public artifact URLs are Cloudflare-Turnstile-gated — server-side fetching is blocked without a user session.</li>
+    <li>There's no "deploy this artifact for my friends to use" button.</li>
+  </ul>
+  <p class="text-slate-700">
+    So if you want multiple people to use a Claude-designed UI against
+    your shared data, you have to <b>flip the script</b>: host the backend
+    yourself (where CSP rules don't apply), publish a schema contract
+    everyone rides on, let users design frontends in Claude, and rehost
+    the submissions on your domain where their <code class="bg-slate-100 px-1 rounded text-sm">fetch()</code>
+    calls to <code class="bg-slate-100 px-1 rounded text-sm">/api/v1/*</code> just work.
+  </p>
+</section>
+
+<!-- ========== WHAT IT PROVES ========== -->
+<section class="mb-10 bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">What this demo proves</h2>
+  <p class="text-slate-700 mb-3">
+    Four seeded users render four completely different JSX components
+    against the <em>same</em> 16 fake house-build tasks:
+  </p>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+    <a href="/u/1" class="block border border-emerald-200 bg-white rounded p-3 hover:border-emerald-400 transition text-sm">
+      <div class="font-medium text-slate-900">Andy</div>
+      <div class="text-xs text-slate-500">owner — kanban</div>
+    </a>
+    <a href="/u/2" class="block border border-emerald-200 bg-white rounded p-3 hover:border-emerald-400 transition text-sm">
+      <div class="font-medium text-slate-900">Paul</div>
+      <div class="text-xs text-slate-500">plumber — task queue</div>
+    </a>
+    <a href="/u/3" class="block border border-emerald-200 bg-white rounded p-3 hover:border-emerald-400 transition text-sm">
+      <div class="font-medium text-slate-900">Ellie</div>
+      <div class="text-xs text-slate-500">electrician — task queue</div>
+    </a>
+    <a href="/u/4" class="block border border-emerald-200 bg-white rounded p-3 hover:border-emerald-400 transition text-sm">
+      <div class="font-medium text-slate-900">Sam</div>
+      <div class="text-xs text-slate-500">inspector — dashboard</div>
+    </a>
+  </div>
+  <p class="text-sm text-slate-600">
+    If the pattern holds for a fake house build, it holds for anything
+    with a shared schema and many stakeholders. This is the smallest
+    version of the idea that doesn't cheat.
+  </p>
+</section>
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="mb-10">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">How it works</h2>
+  <ol class="space-y-3 text-slate-700">
+    <li class="flex gap-3"><span class="font-mono text-emerald-600 text-sm">1</span>
+      <span>You pick a role from the <a href="/" class="underline text-emerald-700">45-role dropdown</a>.
+        We mint you a session-backed user and pre-load a role-specific prompt for Claude.</span>
+    </li>
+    <li class="flex gap-3"><span class="font-mono text-emerald-600 text-sm">2</span>
+      <span>You hit <b>Open in Claude with prompt</b> — the preamble goes straight into a fresh
+        <a href="https://claude.ai/new" target="_blank" class="underline text-emerald-700">claude.ai</a> chat.
+        The preamble tells Claude your schema, your role, and the runtime's constraints.</span>
+    </li>
+    <li class="flex gap-3"><span class="font-mono text-emerald-600 text-sm">3</span>
+      <span>Claude builds you a React artifact that obeys the contract. You iterate until it looks right.</span>
+    </li>
+    <li class="flex gap-3"><span class="font-mono text-emerald-600 text-sm">4</span>
+      <span>You copy Claude's artifact JSX and paste it at <a href="/submit" class="underline text-emerald-700">/submit</a>.</span>
+    </li>
+    <li class="flex gap-3"><span class="font-mono text-emerald-600 text-sm">5</span>
+      <span>Your component mounts at <code class="bg-slate-100 px-1 rounded text-sm">/u/&lt;your-id&gt;</code> in a React 18 + Babel Standalone shell
+        with <code class="bg-slate-100 px-1 rounded text-sm">window.CURRENT_USER</code> pre-injected and <code class="bg-slate-100 px-1 rounded text-sm">fetch()</code> pointed at the shared backend.
+        Share the link. Everyone sees your view, everyone sees the same data.</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ========== STACK ========== -->
+<section class="mb-10 bg-white border border-slate-200 rounded-xl p-6">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">Stack</h2>
+  <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm text-slate-700">
+    <li><b>Backend:</b> Flask, single <code class="bg-slate-100 px-1 rounded">main.py</code></li>
+    <li><b>DB:</b> Postgres (Cloud SQL) in prod, SQLite locally</li>
+    <li><b>Render:</b> React 18 + Babel Standalone — no build step</li>
+    <li><b>Styling:</b> Tailwind via CDN</li>
+    <li><b>Hosting:</b> Google App Engine F1, <code class="bg-slate-100 px-1 rounded">max_instances: 1</code></li>
+    <li><b>Auth:</b> 30-day cookie session (no OAuth)</li>
+    <li><b>Rate limits:</b> in-memory, per-IP, per-gunicorn-worker</li>
+    <li><b>Tests:</b> 14 integration tests, run with <code class="bg-slate-100 px-1 rounded">python -m tests.full_test</code></li>
+  </ul>
+</section>
+
+<!-- ========== LINKS ========== -->
+<section class="mb-10">
+  <h2 class="text-xl font-semibold text-slate-900 mb-3">Poke around</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <a href="https://github.com/tillo13/artifactory" target="_blank" rel="noopener"
+       class="block border border-slate-200 bg-white rounded-lg p-4 hover:border-slate-400 transition">
+      <div class="flex items-center gap-2 mb-1">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2 .37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span class="font-medium text-slate-900">github.com/tillo13/artifactory</span>
+      </div>
+      <div class="text-xs text-slate-500">Source, verbose README with screenshots, tests, credits.</div>
+    </a>
+    <a href="/openapi.json"
+       class="block border border-slate-200 bg-white rounded-lg p-4 hover:border-slate-400 transition">
+      <div class="font-medium text-slate-900 mb-1">/openapi.json</div>
+      <div class="text-xs text-slate-500">Machine-readable schema contract — the shape every submitted artifact rides on.</div>
+    </a>
+    <a href="/schema"
+       class="block border border-slate-200 bg-white rounded-lg p-4 hover:border-slate-400 transition">
+      <div class="font-medium text-slate-900 mb-1">/schema</div>
+      <div class="text-xs text-slate-500">Human-readable preamble — paste it into Claude to start designing.</div>
+    </a>
+    <a href="/api/v1/tasks"
+       class="block border border-slate-200 bg-white rounded-lg p-4 hover:border-slate-400 transition">
+      <div class="font-medium text-slate-900 mb-1">/api/v1/tasks</div>
+      <div class="text-xs text-slate-500">The live REST API. Hit it, GET/POST, see what the 16 fake tasks look like.</div>
+    </a>
+  </div>
+</section>
+
+<!-- ========== DISCLAIMER ========== -->
+<section class="mb-10 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+  <b>Hobby demo, not production.</b> All data is fake. Submitted artifacts run in-browser on this origin — don't paste anything malicious, don't store real credentials, don't expect uptime. The whole stack is a toy to prove a pattern; if the pattern proves worth a real product, the real product needs real auth, real sandboxing, real rate limits, and an SLO. This is step 0.
+</section>
+
+<p class="text-xs text-slate-400 text-center">
+  Built by <a href="https://github.com/tillo13" class="underline">@tillo13</a> ·
+  MIT-style permissive usage
+</p>
+
+{% endblock %}
