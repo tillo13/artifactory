@@ -116,9 +116,25 @@ def cursor():
         finally:
             conn.close()
     else:
+        import psycopg2
         import psycopg2.extras
+        global _pg_pool
         pool = _pg_connection_pool()
         conn = pool.getconn()
+        # Stale-connection probe (mandatory per kumori skill).
+        # Cloud SQL drops idle conns ~10m; pool won't know until a query fails.
+        try:
+            conn.cursor().execute("SELECT 1")
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            logger.warning("Stale DB connection detected, reconnecting")
+            try:
+                pool.putconn(conn, close=True)
+            except Exception:
+                pass
+            with _pg_pool_lock:
+                _pg_pool = None
+            pool = _pg_connection_pool()
+            conn = pool.getconn()
         conn.cursor_factory = psycopg2.extras.RealDictCursor
         try:
             yield conn
@@ -324,16 +340,35 @@ CREATE INDEX IF NOT EXISTS idx_art_artifacts_user_recent
 
 
 def init_schema():
-    """Create tables if missing. Safe to run every boot."""
+    """Create tables if missing. Safe to run every boot.
+
+    Postgres note: gunicorn forks multiple workers and all of them race to
+    run this. CREATE TABLE IF NOT EXISTS isn't fully atomic at the sequence
+    level — the second worker can lose the race with UniqueViolation on
+    pg_class_relname_nsp_index. We serialize with a pg_advisory_lock so
+    only one worker actually runs the DDL per instance startup.
+    """
     if backend() == 'sqlite':
         os.makedirs(os.path.dirname(Config.SQLITE_PATH), exist_ok=True)
         conn = sqlite3.connect(Config.SQLITE_PATH)
         conn.executescript(_DDL_SQLITE)
         conn.commit()
         conn.close()
-    else:
-        with cursor() as conn:
-            conn.cursor().execute(_DDL_POSTGRES)
+        return
+
+    import psycopg2
+    with cursor() as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT pg_advisory_lock(72614001)")
+        try:
+            try:
+                cur.execute(_DDL_POSTGRES)
+            except psycopg2.errors.UniqueViolation:
+                # Lost a race with another worker — tables exist, continue.
+                conn.rollback()
+        finally:
+            # Re-acquire cursor since a rollback may have invalidated it.
+            conn.cursor().execute("SELECT pg_advisory_unlock(72614001)")
 
 
 # =============================================================================
