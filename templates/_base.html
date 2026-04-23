@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Artifactory{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .copy-btn:active { transform: translateY(1px); }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-slate-50 to-slate-100 text-slate-800 min-h-screen">
+
+  <header class="border-b border-slate-200 bg-white">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <span class="text-2xl">📐</span>
+        <span class="font-bold text-lg">Artifactory</span>
+        <span class="text-xs text-slate-400 font-mono">v{{ (self|attr('version'))() if false else '0.1.0' }}</span>
+      </a>
+      <nav class="flex gap-5 text-sm text-slate-600">
+        <a href="/" class="hover:text-slate-900">Home</a>
+        <a href="/schema" class="hover:text-slate-900">Schema</a>
+        <a href="/submit" class="hover:text-slate-900">Submit</a>
+        <a href="/openapi.json" class="hover:text-slate-900">OpenAPI</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-6 py-10 text-xs text-slate-400">
+    <p>One backend. Many AI-designed frontends. Demo: house-build kanban.</p>
+  </footer>
+
+  <script>
+    function copyToClipboard(btn, sourceSelector) {
+      const src = document.querySelector(sourceSelector);
+      if (!src) return;
+      navigator.clipboard.writeText(src.innerText).then(() => {
+        const original = btn.innerText;
+        btn.innerText = '✓ copied';
+        setTimeout(() => btn.innerText = original, 1800);
+      });
+    }
+  </script>
+</body>
+</html>

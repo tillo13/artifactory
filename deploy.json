@@ -1,0 +1,7 @@
+{
+  "project_id": "artifactory-io",
+  "app_name": "Artifactory",
+  "github_repo": "https://github.com/tillo13/artifactory.git",
+  "custom_domain": "https://artifactory-io.uc.r.appspot.com",
+  "cron_yaml": false
+}
