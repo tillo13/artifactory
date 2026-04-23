@@ -1,19 +1,29 @@
 """
 Schema documentation — the *contract* shared with every user's Claude session.
 
-`build_preamble(base_url)` returns the text block users paste into Claude so
-the artifact they design will consume our REST API correctly.
-
-`OPENAPI` is the machine-readable spec served at /openapi.json.
+build_preamble() returns the text block users paste into Claude so the
+artifact they design consumes our REST API correctly. When a role_template
+is passed in, the preamble ends with a role-specific starter prompt.
 """
 
 
-def build_preamble(base_url: str) -> str:
+def build_preamble(base_url: str, role_template: dict = None) -> str:
+    role_section = ""
+    if role_template:
+        role_section = f"""
+
+YOUR ROLE: {role_template['display_name']}
+{role_template.get('description') or ''}
+
+SUGGESTED STARTER PROMPT (you can paraphrase):
+  {role_template.get('example_prompt') or ''}
+"""
+
     return f"""You are designing a React artifact frontend for the Artifactory shared backend.
 
 CONTRACT — you must only call these endpoints. Do NOT invent new ones.
 
-Base URL: {base_url}  (but use relative paths, we'll rehost your artifact on our origin)
+Base URL: {base_url}  (use relative paths — we'll rehost your artifact on our origin)
 
   GET    /api/v1/users/me
     → {{ id, name, role, created_at }}
@@ -41,10 +51,10 @@ Base URL: {base_url}  (but use relative paths, we'll rehost your artifact on our
     body {{ task_id, body }} (user_id comes from session)
 
   GET    /api/v1/materials?task_id=<id>
-    → [{{ id, task_id, name, quantity, unit, cost_usd, ordered }}, ...]
+    → [{{ id, task_id, name, quantity, unit, cost_usd, ordered, supplier }}, ...]
 
   POST   /api/v1/materials
-    body {{ task_id, name, quantity?, unit?, cost_usd?, ordered? }}
+    body {{ task_id, name, quantity?, unit?, cost_usd?, ordered?, supplier? }}
 
   PATCH  /api/v1/materials/<id>
     body any subset; use to toggle `ordered`.
@@ -52,107 +62,49 @@ Base URL: {base_url}  (but use relative paths, we'll rehost your artifact on our
 ENUMS (use these exact strings):
   column_name : "todo" | "sourcing" | "inprogress" | "blocked" | "done"
   tag         : "Permits" | "Inspection" | "Labor" | "Materials" | "Fixtures" | "Design"
-  role        : "owner" | "architect" | "plumber" | "electrician" | "inspector" | "vendor"
 
-PLATFORM CONSTRAINTS — this artifact will run in a Babel-Standalone shell:
+PLATFORM CONSTRAINTS — your code will run in an in-browser Babel Standalone shell:
   - Start with: function App() {{ ... }}  (no `import`/`export` — React is a global)
   - Use React.useState / React.useEffect (hooks are on the React global)
   - Tailwind utility classes are available; no CDN libraries beyond React + Tailwind
   - window.CURRENT_USER is injected before your artifact runs: {{ id, name, role }}
   - All fetch() calls to /api/v1/* just work — same origin, cookies handled
-  - Do NOT use localStorage, window.storage, or window.claude.complete — those are Claude-sandbox-only
+  - Do NOT use localStorage, window.storage, window.claude.complete — those are Claude-sandbox-only
   - Do NOT import any npm packages or external CDNs
 
 STYLE:
   - Dense information, no empty-states-with-illustrations
-  - Respect the current user's role — e.g. a plumber view should filter tasks to assigned_role="plumber" by default
+  - Respect the current user's role — filter to the data they care about
   - Show how many things, not just "things"
-
-When you're done, I'll copy your artifact's JSX and paste it into {base_url}/submit.
+{role_section}
+When you're done, copy the artifact's JSX source and paste it at {base_url}/submit to go live.
 """
 
 
+# OpenAPI spec unchanged from v1 — served at /openapi.json
 OPENAPI = {
     "openapi": "3.0.3",
     "info": {
         "title": "Artifactory Shared Backend",
-        "version": "0.1.0",
-        "description": "The contract every user-submitted frontend rides on. House-build demo.",
+        "version": "0.2.0",
+        "description": "One shared backend, many AI-designed frontends. Pick a role, design a view in Claude, submit the JSX.",
     },
     "servers": [{"url": "/"}],
     "components": {
         "schemas": {
-            "User": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "integer"},
-                    "name": {"type": "string"},
-                    "role": {"type": "string", "enum": ["owner", "architect", "plumber", "electrician", "inspector", "vendor"]},
-                    "created_at": {"type": "string", "format": "date-time"},
-                },
-            },
-            "Task": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "integer"},
-                    "title": {"type": "string"},
-                    "description": {"type": "string", "nullable": True},
-                    "column_name": {"type": "string", "enum": ["todo", "sourcing", "inprogress", "blocked", "done"]},
-                    "tag": {"type": "string", "nullable": True, "enum": ["Permits", "Inspection", "Labor", "Materials", "Fixtures", "Design", None]},
-                    "assigned_role": {"type": "string", "nullable": True},
-                    "due_date": {"type": "string", "format": "date", "nullable": True},
-                    "created_at": {"type": "string", "format": "date-time"},
-                },
-            },
-            "Comment": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "integer"},
-                    "task_id": {"type": "integer"},
-                    "user_id": {"type": "integer"},
-                    "user_name": {"type": "string"},
-                    "user_role": {"type": "string"},
-                    "body": {"type": "string"},
-                    "created_at": {"type": "string", "format": "date-time"},
-                },
-            },
-            "Material": {
-                "type": "object",
-                "properties": {
-                    "id": {"type": "integer"},
-                    "task_id": {"type": "integer"},
-                    "name": {"type": "string"},
-                    "quantity": {"type": "number"},
-                    "unit": {"type": "string", "nullable": True},
-                    "cost_usd": {"type": "number", "nullable": True},
-                    "ordered": {"type": "boolean"},
-                },
-            },
+            "User":     {"type": "object", "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "role": {"type": "string"}}},
+            "Task":     {"type": "object", "properties": {"id": {"type": "integer"}, "title": {"type": "string"}, "description": {"type": "string"}, "column_name": {"type": "string"}, "tag": {"type": "string"}, "assigned_role": {"type": "string"}, "due_date": {"type": "string"}}},
+            "Comment":  {"type": "object", "properties": {"id": {"type": "integer"}, "task_id": {"type": "integer"}, "user_id": {"type": "integer"}, "body": {"type": "string"}}},
+            "Material": {"type": "object", "properties": {"id": {"type": "integer"}, "task_id": {"type": "integer"}, "name": {"type": "string"}, "quantity": {"type": "number"}, "cost_usd": {"type": "number"}, "ordered": {"type": "boolean"}}},
         }
     },
     "paths": {
-        "/api/v1/users/me":   {"get": {"summary": "Current user", "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/User"}}}}}}},
-        "/api/v1/users":      {"get": {"summary": "All users",    "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/User"}}}}}}}},
-        "/api/v1/tasks": {
-            "get": {
-                "summary": "List tasks",
-                "parameters": [
-                    {"name": "column",        "in": "query", "schema": {"type": "string"}},
-                    {"name": "assigned_role", "in": "query", "schema": {"type": "string"}},
-                ],
-                "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/Task"}}}}}},
-            },
-            "post": {"summary": "Create task", "responses": {"201": {"description": "Created"}}},
-        },
-        "/api/v1/tasks/{id}": {
-            "get":    {"summary": "Get task",    "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}]},
-            "patch":  {"summary": "Update task", "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}]},
-            "delete": {"summary": "Delete task", "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}]},
-        },
-        "/api/v1/comments":   {"get": {"summary": "List comments"}, "post": {"summary": "Create comment"}},
-        "/api/v1/materials":  {"get": {"summary": "List materials"}, "post": {"summary": "Create material"}},
-        "/api/v1/materials/{id}": {
-            "patch": {"summary": "Update material", "parameters": [{"name": "id", "in": "path", "required": True, "schema": {"type": "integer"}}]}
-        },
+        "/api/v1/users/me":       {"get":  {"summary": "Current user"}},
+        "/api/v1/users":          {"get":  {"summary": "All users"}},
+        "/api/v1/tasks":          {"get":  {"summary": "List tasks"}, "post":  {"summary": "Create task"}},
+        "/api/v1/tasks/{id}":     {"get":  {"summary": "Get task"},   "patch": {"summary": "Update task"}, "delete": {"summary": "Delete task"}},
+        "/api/v1/comments":       {"get":  {"summary": "List comments"}, "post": {"summary": "Create comment"}},
+        "/api/v1/materials":      {"get":  {"summary": "List materials"}, "post": {"summary": "Create material"}},
+        "/api/v1/materials/{id}": {"patch":{"summary": "Update material"}},
     },
 }

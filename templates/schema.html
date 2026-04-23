@@ -1,40 +1,59 @@
 {% extends "_base.html" %}
 
-{% block title %}Schema preamble — Artifactory{% endblock %}
+{% block title %}Design your view — Artifactory{% endblock %}
 
 {% block content %}
-<section class="mb-8">
-  <h1 class="text-3xl font-bold text-slate-900 mb-2">Schema preamble</h1>
-  <p class="text-slate-600 max-w-3xl">
-    Paste this at the start of a fresh Claude chat. It tells Claude exactly
-    which endpoints exist, what shapes come back, and which platform
-    constraints to respect so the artifact drops into our portal cleanly.
-  </p>
+<section class="mb-6">
+  <h1 class="text-3xl font-bold text-slate-900 mb-2">
+    {% if role_template %}
+      Design a {{ role_template.display_name }} view
+    {% else %}
+      Design your view
+    {% endif %}
+  </h1>
+  {% if role_template %}
+    <p class="text-slate-600">
+      {{ role_template.description }} The preamble below is pre-loaded with a starter
+      prompt tailored to this role.
+    </p>
+  {% else %}
+    <p class="text-slate-600">
+      Paste this into a fresh Claude chat and iterate on your view.
+    </p>
+  {% endif %}
+</section>
+
+<section class="mb-6 flex flex-wrap items-center gap-3">
+  <!-- Launch-in-Claude button: passes the preamble as ?q= (url-encoded).
+       If claude.ai drops long query strings we fall back to copy-paste. -->
+  {% set claude_url = "https://claude.ai/new?q=" + (preamble|urlencode) %}
+  <a href="{{ claude_url }}" target="_blank" rel="noopener"
+     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-semibold">
+    🚀 Open in Claude with prompt
+  </a>
+  <button onclick="copyToClipboard(this, '#preamble-block')"
+          class="copy-btn text-sm bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md">
+    📋 Copy preamble
+  </button>
+  <a href="/submit{% if current_user %}?user={{ current_user.id }}{% endif %}"
+     class="ml-auto text-sm text-slate-600 hover:text-slate-900">
+    Already designed it? → submit
+  </a>
 </section>
 
 <section class="mb-8">
-  <div class="flex items-center justify-between mb-2">
-    <h2 class="text-sm font-mono text-slate-500">paste this into claude ↓</h2>
-    <button class="copy-btn text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-md"
-            onclick="copyToClipboard(this, '#preamble-block')">📋 copy</button>
-  </div>
   <pre id="preamble-block"
-       class="bg-slate-900 text-slate-100 rounded-xl p-5 text-sm whitespace-pre-wrap leading-relaxed overflow-x-auto">{{ preamble }}</pre>
+       class="bg-slate-900 text-slate-100 rounded-xl p-5 text-sm whitespace-pre-wrap leading-relaxed overflow-x-auto max-h-[60vh]">{{ preamble }}</pre>
 </section>
 
 <section class="mb-8 bg-white border border-slate-200 rounded-xl p-5">
-  <h3 class="font-semibold text-slate-900 mb-2">After you paste the preamble</h3>
+  <h3 class="font-semibold text-slate-900 mb-2">After the preamble</h3>
   <ol class="list-decimal list-inside text-sm text-slate-700 space-y-1">
-    <li>Tell Claude what you want: <em>"build me a plumber-only task queue sorted by due date"</em></li>
-    <li>Claude generates an artifact in the right column</li>
-    <li>Hit Claude's built-in <b>Copy</b> button to grab the JSX source</li>
-    <li>Go to <a href="/submit" class="text-emerald-700 underline">/submit</a> and paste it in</li>
-    <li>Your view lights up at <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">/u/{{ current_user.id }}</code></li>
+    <li>Iterate with Claude until the view feels right</li>
+    <li>Click Claude's built-in <b>Copy</b> button on the artifact</li>
+    <li>Go to <a href="/submit{% if current_user %}?user={{ current_user.id }}{% endif %}" class="text-emerald-700 underline">/submit</a> and paste</li>
+    <li>Your view is live at
+      <code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">/u/{{ current_user.id if current_user else '&lt;you&gt;' }}</code></li>
   </ol>
-</section>
-
-<section>
-  <h3 class="text-sm font-mono text-slate-500 mb-2">full spec</h3>
-  <p class="text-sm"><a class="underline text-emerald-700" href="/openapi.json">/openapi.json</a> — machine-readable OpenAPI 3.0 spec, auto-generated from the same source as this preamble.</p>
 </section>
 {% endblock %}

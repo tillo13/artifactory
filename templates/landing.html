@@ -4,129 +4,126 @@
 
 {% block content %}
 
-<section class="mb-12">
+<section class="mb-10">
   <h1 class="text-4xl font-bold text-slate-900 mb-3">One backend. Many AI-designed frontends.</h1>
   <p class="text-lg text-slate-600 max-w-3xl">
-    Everyone on the crew sees the same house-build data. But the architect
-    wants a timeline, the plumber wants their task queue, and the owner
-    wants a kanban. Design your own view in Claude. Submit it here. It
-    shows up live at <code class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">/u/&lt;your-id&gt;</code>.
+    A house-build demo. Everyone on the crew sees the same fake data, but
+    the electrician wants a punchlist, the owner wants a kanban, the
+    inspector wants a dashboard. Pick your role → design your view in
+    Claude → watch it go live at <code class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">/u/&lt;your-id&gt;</code>.
   </p>
 </section>
 
-<section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-12">
-
-  <!-- The flow in three steps -->
-  <div class="bg-white border border-slate-200 rounded-xl p-5">
-    <div class="text-emerald-600 font-mono text-xs mb-2">STEP 1</div>
-    <h3 class="font-semibold text-slate-900 mb-2">Grab the schema preamble</h3>
-    <p class="text-sm text-slate-600 mb-3">
-      Copy the block of instructions that teaches Claude your backend's shape.
-      Paste it into a fresh Claude chat before you start designing.
-    </p>
-    <a href="/schema" class="inline-block text-sm text-emerald-700 hover:text-emerald-900">Open preamble →</a>
+<!-- ================= PICK A ROLE ================= -->
+<section class="mb-12 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+  <div class="flex items-baseline justify-between mb-4">
+    <h2 class="text-xl font-semibold text-slate-900">Pick your role</h2>
+    <span class="text-xs text-slate-400">{{ user_count }} / {{ hard_cap }} visitors so far</span>
   </div>
 
-  <div class="bg-white border border-slate-200 rounded-xl p-5">
-    <div class="text-emerald-600 font-mono text-xs mb-2">STEP 2</div>
-    <h3 class="font-semibold text-slate-900 mb-2">Vibe-code your view in Claude</h3>
-    <p class="text-sm text-slate-600 mb-3">
-      Tell Claude what you want: "build me a plumber-only task queue grouped
-      by urgency." It'll design the JSX against your schema contract.
-    </p>
-    <a href="https://claude.ai/new" target="_blank" class="inline-block text-sm text-emerald-700 hover:text-emerald-900">Open Claude →</a>
-  </div>
+  <form action="/pick-role" method="POST" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Your name <span class="text-slate-400">(optional)</span></label>
+      <input type="text" name="display_name" placeholder="whatever you want to be called"
+             class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm" maxlength="60">
+    </div>
 
-  <div class="bg-white border border-slate-200 rounded-xl p-5">
-    <div class="text-emerald-600 font-mono text-xs mb-2">STEP 3</div>
-    <h3 class="font-semibold text-slate-900 mb-2">Submit the JSX</h3>
-    <p class="text-sm text-slate-600 mb-3">
-      Copy the artifact source out of Claude and paste it on the submit
-      page. Your view lights up immediately at <code class="text-xs">/u/&lt;you&gt;</code>.
-    </p>
-    <a href="/submit" class="inline-block text-sm text-emerald-700 hover:text-emerald-900">Submit →</a>
-  </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">What are you building in this crew?</label>
+      <select name="role_slug" required
+              class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm font-medium bg-white">
+        <option value="">— pick a role —</option>
+        {% for cat in roles_by_category %}
+          <optgroup label="{{ cat.label }}">
+            {% for r in cat.roles %}
+              <option value="{{ r.slug }}">{{ r.display_name }} — {{ r.description }}</option>
+            {% endfor %}
+          </optgroup>
+        {% endfor %}
+      </select>
+    </div>
 
+    <div class="flex items-center justify-between pt-2">
+      <button type="submit"
+              class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-md text-sm font-semibold">
+        Start designing →
+      </button>
+      <span class="text-xs text-slate-400">No account. A cookie will remember you for 30 days.</span>
+    </div>
+  </form>
 </section>
 
-<!-- Who's here -->
+<!-- ================= HOW IT WORKS ================= -->
 <section class="mb-12">
-  <h2 class="text-xl font-semibold text-slate-900 mb-4">The crew</h2>
+  <h2 class="text-xl font-semibold text-slate-900 mb-4">How it works — 60 seconds</h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-emerald-600 font-mono text-xs mb-1">1</div>
+      <div class="font-semibold text-slate-900 text-sm mb-1">Pick a role</div>
+      <div class="text-xs text-slate-600">Above ↑. You get a personalized Claude prompt.</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-emerald-600 font-mono text-xs mb-1">2</div>
+      <div class="font-semibold text-slate-900 text-sm mb-1">Open Claude with prompt</div>
+      <div class="text-xs text-slate-600">One click launches claude.ai with the schema pre-loaded.</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-emerald-600 font-mono text-xs mb-1">3</div>
+      <div class="font-semibold text-slate-900 text-sm mb-1">Copy the artifact</div>
+      <div class="text-xs text-slate-600">Claude builds a React view. Hit its Copy button.</div>
+    </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="text-emerald-600 font-mono text-xs mb-1">4</div>
+      <div class="font-semibold text-slate-900 text-sm mb-1">Paste &amp; go live</div>
+      <div class="text-xs text-slate-600">Submit → <code class="text-xs">/u/&lt;you&gt;</code> → share the link.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO CREW EXAMPLES ================= -->
+<section class="mb-12">
+  <h2 class="text-xl font-semibold text-slate-900 mb-2">See four views of the same backend</h2>
+  <p class="text-sm text-slate-500 mb-4">Same 16 fake house tasks. Four totally different UIs.</p>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    {% for u in users %}
+    {% for u in demo_users %}
       <a href="/u/{{ u.id }}"
          class="block border border-slate-200 bg-white rounded-lg p-4 hover:border-emerald-400 hover:shadow-sm transition">
         <div class="text-sm font-medium text-slate-900">{{ u.name }}</div>
         <div class="text-xs text-slate-500 mt-0.5">{{ u.role }}</div>
-        <div class="text-xs text-emerald-700 font-mono mt-2">/u/{{ u.id }}</div>
+        <div class="text-xs text-emerald-700 font-mono mt-2">/u/{{ u.id }} →</div>
       </a>
     {% endfor %}
   </div>
 </section>
 
-<!-- Three submission paths -->
+<!-- ================= CONTRACT ================= -->
 <section class="mb-12">
-  <h2 class="text-xl font-semibold text-slate-900 mb-4">Three ways to submit</h2>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="bg-emerald-100 text-emerald-700 text-xs font-mono px-2 py-0.5 rounded">READY</span>
-        <h4 class="font-semibold">Paste JSX</h4>
-      </div>
-      <p class="text-sm text-slate-600">
-        Click Claude's "Copy" button on the artifact, paste into the submit
-        textarea. Zero friction. No auth.
-      </p>
-      <a href="/submit" class="mt-3 inline-block text-sm text-emerald-700 hover:text-emerald-900">Go →</a>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="bg-slate-200 text-slate-700 text-xs font-mono px-2 py-0.5 rounded">PLANNED</span>
-        <h4 class="font-semibold">Chrome extension</h4>
-      </div>
-      <p class="text-sm text-slate-600">
-        Fork of <code class="text-xs">elgertam/claude-artifact-downloader</code> —
-        one click in your Claude tab and the artifact POSTs straight here.
-      </p>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-xl p-5">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="bg-slate-200 text-slate-700 text-xs font-mono px-2 py-0.5 rounded">PLANNED</span>
-        <h4 class="font-semibold">URL + session cookie</h4>
-      </div>
-      <p class="text-sm text-slate-600">
-        Paste a <code class="text-xs">claude.ai/public/artifacts/&lt;uuid&gt;</code>
-        link plus your session cookie. Server fetches the source via the
-        real Claude API.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-<!-- What's inside -->
-<section class="mb-12">
-  <h2 class="text-xl font-semibold text-slate-900 mb-4">What the shared backend exposes</h2>
+  <h2 class="text-xl font-semibold text-slate-900 mb-4">The shared contract</h2>
   <div class="bg-slate-900 text-slate-100 rounded-xl p-5 font-mono text-sm overflow-x-auto">
-<pre>GET    /api/v1/users/me                     <span class="text-slate-400"># { id, name, role }</span>
-GET    /api/v1/users                        <span class="text-slate-400"># everyone on the crew</span>
+<pre>GET    /api/v1/users/me
+GET    /api/v1/users
 GET    /api/v1/tasks?column=&amp;assigned_role=
-POST   /api/v1/tasks                        <span class="text-slate-400"># create</span>
-PATCH  /api/v1/tasks/&lt;id&gt;                    <span class="text-slate-400"># update any subset</span>
+POST   /api/v1/tasks
+PATCH  /api/v1/tasks/&lt;id&gt;
 DELETE /api/v1/tasks/&lt;id&gt;
 GET    /api/v1/comments?task_id=
-POST   /api/v1/comments                     <span class="text-slate-400"># author = current user</span>
+POST   /api/v1/comments
 GET    /api/v1/materials?task_id=
 POST   /api/v1/materials
 PATCH  /api/v1/materials/&lt;id&gt;</pre>
   </div>
   <p class="text-sm text-slate-500 mt-3">
-    Full spec: <a class="underline" href="/openapi.json">/openapi.json</a>.
-    Every submitted frontend rides this contract.
+    Full spec: <a class="underline" href="/openapi.json">/openapi.json</a> ·
+    Source: <a class="underline" href="https://github.com/tillo13/artifactory" target="_blank">github.com/tillo13/artifactory</a>
   </p>
+</section>
+
+<!-- ================= DEMO DISCLAIMER ================= -->
+<section class="mb-12 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+  <b>Hobby demo.</b> All data is fake. Submitted artifacts run in-browser on this origin —
+  don't paste anything malicious, don't store real credentials, and don't expect uptime.
+  Round-robin-safe: if we hit {{ soft_cap }} visitors we'll soft-warn; at {{ hard_cap }} we
+  stop accepting new roles until the demo resets.
 </section>
 
 {% endblock %}

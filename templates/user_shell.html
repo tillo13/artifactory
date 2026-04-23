@@ -36,7 +36,7 @@
         <span class="text-xs text-slate-400">{{ user.role }}</span>
       </div>
       <div class="flex items-center gap-3 text-xs">
-        <span class="text-slate-400">switch view →</span>
+        <span class="text-slate-400">demo views →</span>
         {% for u in all_users %}
           <a href="/u/{{ u.id }}"
              class="{% if u.id == user.id %}bg-emerald-500 text-white{% else %}text-slate-600 hover:text-slate-900{% endif %} px-2 py-0.5 rounded">
@@ -44,7 +44,7 @@
           </a>
         {% endfor %}
         <span class="text-slate-300">·</span>
-        <a href="/submit?user={{ user.id }}" class="text-emerald-700 hover:text-emerald-900">edit view</a>
+        <a href="/" class="text-slate-600 hover:text-slate-900">make your own</a>
       </div>
     </div>
   </div>

@@ -1,0 +1,22 @@
+{% extends "_base.html" %}
+{% block title %}Demo cap reached — Artifactory{% endblock %}
+{% block content %}
+<section class="max-w-2xl mx-auto bg-amber-50 border border-amber-200 rounded-xl p-8 text-center">
+  <h1 class="text-2xl font-bold text-amber-900 mb-2">Demo cap reached</h1>
+  <p class="text-amber-900 mb-4">
+    This hobby demo has hit its visitor cap. Nothing's broken — we just
+    stop accepting new role picks past the limit so the instance stays free
+    on App Engine's free tier.
+  </p>
+  <p class="text-sm text-amber-800">
+    You can still browse the four pre-built example views:
+    <a class="underline" href="/u/1">/u/1</a> ·
+    <a class="underline" href="/u/2">/u/2</a> ·
+    <a class="underline" href="/u/3">/u/3</a> ·
+    <a class="underline" href="/u/4">/u/4</a>
+  </p>
+  <p class="text-xs text-amber-700 mt-4">
+    Or clone the repo and run your own: <a class="underline" href="https://github.com/tillo13/artifactory">github.com/tillo13/artifactory</a>
+  </p>
+</section>
+{% endblock %}
