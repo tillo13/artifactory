@@ -17,3 +17,10 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+# Virtualenv — App Engine builds from requirements.txt; the local venv is both
+# useless there and platform-wrong (darwin .so). It was 1806 of 1838 uploaded
+# files and 75.6MB of the 76.8MB bundle.
+venv_artifactory/
+venv*/
+__pycache__/
+*.pyc
