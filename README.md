@@ -1,12 +1,20 @@
-# 📐 Artifactory
+# 📐 Artifactory  ·  ⛔ RETIRED
+
+> **This project is retired and no longer running.** The App Engine app was disabled on
+> **2026-09-16** and the hosted demo is gone for good. Every `artifactory-io.uc.r.appspot.com`
+> link below is dead, including the OpenAPI contract and the `/u/<id>` example views.
+> The idea has been superseded elsewhere.
+>
+> The code and this write-up stay up as a record of how it worked, and it still runs locally
+> against SQLite (see [Run it yourself](#-run-it-yourself)). Nothing else is maintained: no
+> deploys, no dependency updates, no issue triage.
 
 **One backend. Many AI-designed frontends.**
 
-A public demo: visitors pick a role on a house build, design their own React view in Claude against a shared schema, and watch it go live at `/u/<their-id>` alongside everyone else's — all reading and writing the same fake data.
+It was a public demo: visitors picked a role on a house build, designed their own React view in Claude against a shared schema, and watched it go live at `/u/<their-id>` alongside everyone else's — all reading and writing the same fake data.
 
-🚀 **Live demo:** https://artifactory-io.uc.r.appspot.com
 📦 **Repo:** https://github.com/tillo13/artifactory
-🧾 **Source contract (OpenAPI):** https://artifactory-io.uc.r.appspot.com/openapi.json
+🚀 ~~Live demo~~ · 🧾 ~~OpenAPI contract~~ — both retired 2026-09-16
 
 ---
 
@@ -33,7 +41,10 @@ A public demo: visitors pick a role on a house build, design their own React vie
 
 ## 🚀 Try it in 60 seconds
 
-1. Go to **[artifactory-io.uc.r.appspot.com](https://artifactory-io.uc.r.appspot.com)**
+> ⛔ **Retired — the hosted demo no longer exists.** These were the steps while it ran,
+> kept for the record. To try the flow now, run it locally: [Run it yourself](#-run-it-yourself).
+
+1. Go to **~~artifactory-io.uc.r.appspot.com~~**
 2. In the dropdown, pick one of 45 house-build roles — plumber, electrician, home stager, tree trimmer, whatever
 3. Click **🚀 Open in Claude with prompt** (opens claude.ai with your role-specific schema preamble pre-loaded)
 4. Iterate with Claude until the view looks right, then hit Claude's built-in **Copy** button on the artifact
@@ -116,10 +127,10 @@ To prove the "many UIs over one schema" point, the demo ships four pre-seeded us
 
 | User | Role | Live link | What the JSX does |
 |---|---|---|---|
-| Andy | owner | [/u/1](https://artifactory-io.uc.r.appspot.com/u/1) | 5-column kanban, drag buttons between columns |
-| Paul Plumber | plumber | [/u/2](https://artifactory-io.uc.r.appspot.com/u/2) | Filtered to `assigned_role=plumber`, plain list |
-| Ellie Elec | electrician | [/u/3](https://artifactory-io.uc.r.appspot.com/u/3) | Filtered to `assigned_role=electrician`, plain list |
-| Sam Inspector | inspector | [/u/4](https://artifactory-io.uc.r.appspot.com/u/4) | Stats dashboard (column counts + filtered list) |
+| Andy | owner | ~~/u/1~~ | 5-column kanban, drag buttons between columns |
+| Paul Plumber | plumber | ~~/u/2~~ | Filtered to `assigned_role=plumber`, plain list |
+| Ellie Elec | electrician | ~~/u/3~~ | Filtered to `assigned_role=electrician`, plain list |
+| Sam Inspector | inspector | ~~/u/4~~ | Stats dashboard (column counts + filtered list) |
 
 ### /u/1 — Andy's kanban
 
@@ -160,7 +171,7 @@ Full list with prompts lives in [`utilities/roles.py`](utilities/roles.py). Addi
 
 ## 🔌 The shared contract
 
-Every submitted artifact rides on these endpoints. **Do not invent new ones** — they won't exist. Live spec: **[/openapi.json](https://artifactory-io.uc.r.appspot.com/openapi.json)**.
+Every submitted artifact rides on these endpoints. **Do not invent new ones** — they won't exist. Live spec: **~~/openapi.json~~**.
 
 ```
 GET    /api/v1/users/me
