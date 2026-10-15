@@ -31,6 +31,8 @@ SOURCE_JSX_MAX_BYTES = 100 * 1024  # 100 KB
 
 def create_app():
     app = Flask(__name__)
+    from utilities.csrf_guard import install as install_csrf_guard
+    install_csrf_guard(app)  # refuse cross-site POSTs; session cookie SameSite=Lax (audit 2026-10-14)
     app.config['SECRET_KEY'] = os.environ.get('ARTIFACTORY_SECRET_KEY', 'dev-secret-key-change-me')
     app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB total request, artifacts capped tighter
 

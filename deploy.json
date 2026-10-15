@@ -3,5 +3,11 @@
   "app_name": "Artifactory",
   "github_repo": "https://github.com/tillo13/artifactory.git",
   "custom_domain": "https://artifactory-io.uc.r.appspot.com",
-  "cron_yaml": false
+  "cron_yaml": false,
+  "shared_files": [
+    {
+      "src": "spam_control/csrf_guard.py",
+      "dst": "utilities/csrf_guard.py"
+    }
+  ]
 }
